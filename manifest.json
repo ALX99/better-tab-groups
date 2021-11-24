@@ -1,0 +1,47 @@
+{
+  "name": "Better Tab Groups",
+  "description": "Better Tab Groups... Duh",
+  "version": "1.0",
+  "manifest_version": 3,
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["tabs", "contextMenus", "tabGroups"],
+
+  "commands": {
+    "sort-tabs": {
+      "description": "Sort window tabs",
+      "suggested_key": {
+        "default": "Ctrl+Comma"
+      }
+    },
+    "toggle-auto-groups-tabs": {
+      "description": "Toggle auto group tabs",
+      "suggested_key": {
+        "default": "Ctrl+G"
+      }
+    },
+    "ungroup-tabs": {
+      "description": "Ungroups all window tabs",
+      "suggested_key": {
+        "default": "Ctrl+U"
+      }
+    }
+  },
+  "action": {
+    "default_icon": {
+      "16": "/images/icon16.png",
+      "32": "/images/icon32.png",
+      "48": "/images/icon48.png",
+      "128": "/images/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "/images/icon16.png",
+    "32": "/images/icon32.png",
+    "48": "/images/icon48.png",
+    "128": "/images/icon128.png"
+  },
+
+  "offline_enabled": true
+}
