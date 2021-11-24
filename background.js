@@ -43,9 +43,16 @@ function onInstalled() {
 }
 
 async function onUpdated(tabId, changeInfo, tab) {
-  console.log("onUpdated called", autoSort, changeInfo);
+  console.log(
+    "onUpdated called",
+    autoSort,
+    groupTabsByHost,
+    createGroupTitle,
+    changeInfo
+  );
+
   if (!autoSort) return;
-  if (changeInfo.url != "") {
+  if (changeInfo.hasOwnProperty("url")) {
     let tabs = await getWindowTabs();
     if (groupTabsByHost) groupTabs(tabs);
     else sortTabs(tabs);
@@ -105,18 +112,18 @@ async function groupTabs(tabs) {
   const hostMap = new Map();
 
   // Parse the URLs of all tabs into hostMap
-  if (createGroupTitle)
-    tabs.forEach(tab => {
-      let host = new URL(tab.url).host;
-      if (hostMap.has(host)) hostMap.get(host).push(tab);
-      else hostMap.set(host, [tab]);
-    });
+  tabs.forEach(tab => {
+    let host = new URL(tab.url).host;
+    if (hostMap.has(host)) hostMap.get(host).push(tab);
+    else hostMap.set(host, [tab]);
+  });
 
+  let tabIdsToUngroup = [];
   for (const [host, tabs] of hostMap.entries()) {
     // Only create a tab group if we have more than a single
     // tab for one domain
     if (tabs.length === 1) {
-      console.log("len 1 for", host);
+      tabIdsToUngroup.push(tabs[0].id);
       continue;
     }
 
@@ -124,14 +131,18 @@ async function groupTabs(tabs) {
     hostSplit = host.split(".");
 
     // TODO find a better way to get the name of the site
-    if (hostSplit.length == 0) hostname = hostSplit[0];
-    else if (hostSplit.length == 1) hostname = hostSplit[hostSplit.length - 1];
-    else hostname = hostSplit[hostSplit.length - 2];
+    if (createGroupTitle) {
+      if (hostSplit.length == 0) hostname = hostSplit[0];
+      else if (hostSplit.length == 1)
+        hostname = hostSplit[hostSplit.length - 1];
+      else hostname = hostSplit[hostSplit.length - 2];
+    }
 
     chrome.tabs.group({ tabIds: tabs.map(tab => tab.id) }, groupId =>
       chrome.tabGroups.update(groupId, { title: hostname })
     );
   }
+  chrome.tabs.ungroup(tabIdsToUngroup);
 }
 
 async function ungroupTabs(tabs) {
